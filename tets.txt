@@ -1,0 +1,122 @@
+// @ts-nocheck
+import { serve } from 'https://deno.land/std@0.170.0/http/server.ts' 
+import 'https://deno.land/x/xhr@0.2.1/mod.ts'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.5.0'
+import GPT3Tokenizer from 'https://esm.sh/gpt3-tokenizer@1.1.5'
+import { Configuration, OpenAIApi } from 'https://esm.sh/openai@3.1.0'
+import { stripIndent, oneLine } from 'https://esm.sh/common-tags@1.8.2'
+ 
+export const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
+
+export const supabaseClient = createClient(
+  "https://uyavglhddvuyszfhuiea.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV5YXZnbGhkZHZ1eXN6Zmh1aWVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODI3NDc0MzAsImV4cCI6MTk5ODMyMzQzMH0.iwBxqlm3BZuJ7wcv4nca-TiERhq0bDgSqJGRAr65wOM"
+);
+ 
+
+serve(async (req) => {
+
+    //ask custom data logic
+    if (req.method === "OPTIONS"){
+        return new Response("ok", {headers: corsHeaders});
+    }
+
+    //req: {query: "Who is Saubhagya"}
+
+    const { query } = await req.json();
+    const input = query.replace(/\n/g, ' ');
+    
+    console.log(input); 
+
+     const configuration = new Configuration({
+    apiKey: "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",
+  });
+  const openai = new OpenAIApi(configuration);
+
+  // create an embedding for our question / input
+
+  const embeddingResponse = await openai.createEmbedding({
+      model: "text-embedding-ada-002", // model to use
+      input,
+    });
+
+    const [{ embedding }] = embeddingResponse.data.data;
+
+  // get the relavant document by using the match_document
+  // rpc: call PostgreSQL function in Supabase
+
+  const { data: documents , error } = await supabaseClient.rpc('match_document', {
+
+    query_embedding: embedding,
+    match_threshold: 0.73,
+    match_count: 10,
+  });
+
+  if (error) throw error;
+
+
+
+
+  // loop through the relavant documents and format the chatgpt prompt
+  // limit the token to 1000
+
+  const tokenizer = GPT3Tokenizer({ type: "gpt3"})
+  let tokenCount = 0;
+  let contextText = "";
+
+  // document
+
+  for(let i =0; i<doucments.length; i++){
+    const document = documents[i];
+    const content = document.content;
+    const encoded = tokenizer.encode(content);
+    tokenCount += encoded.text.length;
+
+    if(tokenCount > 1000) break;
+
+    contextText += `${content.trim()}---\n`
+  }
+
+  //eg 
+  /*
+  saubhagya is good boy---\n
+  saubhagya is btech student---\n
+  */
+
+  //create prompt (system ,relavant document, question)
+  const prompt = stripIndent`${oneLine`
+
+  You are a representative of saubhagya who is very helpful when it comes to answering questions about saubhagya.
+  Only ever answer questions about saubhagya. If you don't know the answer, say "I don't know" and be as helpful as possible.
+
+  `}
+
+  Context sections:
+  ${contextText}
+  question: """
+  ${query}
+  """
+  Answer as simple text;
+  `
+
+  // get response from text-davinci-003 model
+
+  const completionResponse = await openai.createCompletion({
+    model: "text-davinci-003",
+    prompt,
+    maxTokens: 512,
+    temperature: 0,
+  })
+  const {id , choices: [{text}]} = completionResponse.data;
+
+  // return the response from the model to our user through a response
+
+    return new Response(JSON.stringify({id, text}), {
+        headers: {...corsHeaders, 'Content-type': 'application/json'}
+    })
+
+})
+
