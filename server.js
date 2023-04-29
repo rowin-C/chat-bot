@@ -5,7 +5,8 @@ import { Configuration, OpenAIApi } from "openai";
 
 const supabaseClient = createClient(
   "https://uyavglhddvuyszfhuiea.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV5YXZnbGhkZHZ1eXN6Zmh1aWVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODI3NDc0MzAsImV4cCI6MTk5ODMyMzQzMH0.iwBxqlm3BZuJ7wcv4nca-TiERhq0bDgSqJGRAr65wOM"
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV5YXZnbGhkZHZ1eXN6Zmh1aWVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODI3NDc0MzAsImV4cCI6MTk5ODMyMzQzMH0.iwBxqlm3BZuJ7wcv4nca-TiERhq0bDgSqJGRAr65wOM",
+  { global: { fetch } }
 );
 
 // genete embedding

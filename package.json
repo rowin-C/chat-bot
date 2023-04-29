@@ -11,7 +11,8 @@
   "license": "ISC",
   "dependencies": {
     "@supabase/supabase-js": "^2.21.0",
-    "openai": "^3.2.1"
+    "openai": "^3.2.1",
+    "openai-edge": "^0.5.1"
   },
   "type": "module",
   "devDependencies": {
