@@ -13,8 +13,8 @@ export const corsHeaders = {
 };
 
 export const supabaseClient = createClient(
-  "https://uyavglhddvuyszfhuiea.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV5YXZnbGhkZHZ1eXN6Zmh1aWVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODI3NDc0MzAsImV4cCI6MTk5ODMyMzQzMH0.iwBxqlm3BZuJ7wcv4nca-TiERhq0bDgSqJGRAr65wOM"
+  "LALALA",
+  "IIIfcewsdfcwefdwesfewfcewfcwe3"
 );
 
 serve(async (req) => {
@@ -30,7 +30,7 @@ serve(async (req) => {
   const input = query.replace(/\n/g, " ");
   console.log(input);
   const configuration = new Configuration({
-    apiKey: "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",
+    apiKey: "sk-ej7BCHK2rLCQp1WUAAtaT3BlbkFuCkUJBJqBJkGFpXRM4NeY9A2C",
   });
   const openai = new OpenAIApi(configuration);
 
