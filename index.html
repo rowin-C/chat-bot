@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Saubhagya</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  </head>
+  <body>
+    <h1>Ask question</h1>
+    <input type="text" />
+    <button>Ask</button>
+    <div id="answer">--Answer--</div>
+  </body>
+
+  <script>
+    const supabaseClient = supabase.createClient(
+      "https://uyavglhddvuyszfhuiea.supabase.co",
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV5YXZnbGhkZHZ1eXN6Zmh1aWVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODI3NDc0MzAsImV4cCI6MTk5ODMyMzQzMH0.iwBxqlm3BZuJ7wcv4nca-TiERhq0bDgSqJGRAr65wOM"
+    );
+
+    const input = document.querySelector("input");
+    const button = document.querySelector("button");
+    const answer = document.querySelector("#answer");
+
+    button.addEventListener("click", () => {
+      askQuestion();
+      console.log("clicked");
+    });
+
+    async function askQuestion() {
+      const { data, error } = await supabaseClient.functions.invoke(
+        "ask-custom-data",
+        {
+          body: JSON.stringify({ query: input.value }),
+        }
+      );
+      console.log(data);
+      console.log(error);
+      answer.innerHTML = data.text;
+    }
+  </script>
+</html>
